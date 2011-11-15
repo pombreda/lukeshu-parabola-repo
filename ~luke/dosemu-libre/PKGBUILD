@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: Jaroslaw Swierczynski <swiergot@aur.archlinux.org>
+# Contributor: Eric Belanger <belanger@astro.umontreal.ca>
+# Contributor: Bob Finch <w9ya@arrl.net>
+# Contributor: Luke Shumaker <lukeshu@sbcglobal.net>
+
+pkgname=dosemu-libre
+pkgver=1.4.0
+pkgrel=3
+pkgdesc="DOS emulator"
+arch=('i686' 'x86_64')
+url="http://www.dosemu.org/"
+license=('custom' 'GPL2' 'CMU')
+depends=('gpm' 'slang' 'sdl' 'libxxf86vm' 'libsndfile' 'sh')
+backup=('etc/dosemu/dosemu.conf'
+	'etc/dosemu/dosemu.users'
+	'etc/dosemu/global.conf')
+source=(http://downloads.sourceforge.net/sourceforge/dosemu/dosemu-$pkgver.tgz)
+md5sums=('0bba530637266f99d404ba15e3f118d4')
+
+_extract_license() {
+  sed -e "1,/^--- $1/d" -e '/^---/,$d' COPYING.DOSEMU | sed 1d > $pkgdir/usr/share/licenses/$pkgname/$2
+}
+
+build() {
+  cd $srcdir/dosemu-$pkgver
+  ./configure --prefix=/usr --with-fdtarball=none --mandir=/usr/share/man
+  make || return 1
+  
+  make DESTDIR=$pkgdir install || return 1
+  
+  install -D -m 644 COPYING $pkgdir/usr/share/licenses/$pkgname/COPYING && \
+  install -D -m 644 COPYING.DOSEMU $pkgdir/usr/share/licenses/$pkgname/COPYING.DOSEMU
+  _extract_license 'The Mach DOS Emulator' COPYING.CMU
+  _extract_license 'XFree86 (mouse code)' COPYING.mouse
+  _extract_license 'The VGA fonts' COPYING.copyleft_vgafonts
+}

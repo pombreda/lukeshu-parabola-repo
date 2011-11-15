@@ -1,0 +1,12 @@
+~nonfree/*
+*.tar.gz
+*.tgz
+*.tar.xz
+
+*~
+#*#
+src/
+pkg/
+*.pkg.tar.*
+*.src.tar.*
+namcap.log
