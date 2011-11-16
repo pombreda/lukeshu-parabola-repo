@@ -1,0 +1,65 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+# Contributor: pallegro from the AUR
+
+_pkgname=openni-sensorkinect
+pkgname=${_pkgname}-git
+pkgver=20111115
+pkgrel=1
+pkgdesc="OpenNI SensorKinect harware modules for the Xbox Kinect device"
+arch=('i686')
+url="https://github.com/avin2/SensorKinect"
+license=('GPL')
+depends=('openni')
+makedepends=('git')
+provides=($_pkgname)
+conflicts=("$_pkgname" 'openni-primesenser')
+install="sensorkinect.install"
+source=()
+md5sums=()
+
+_gitroot="https://github.com/avin2/SensorKinect.git"
+_gitname="sensorkinect"
+_gitbranch="unstable"
+#_gitbranch="master"
+
+build() {
+  cd "$srcdir"
+  msg "Connecting to GIT server...."
+
+  if [ -d $_gitname ] ; then
+    cd $_gitname && git pull origin
+    msg "The local files are updated."
+  else
+    git clone -b $_gitbranch $_gitroot $_gitname
+  fi
+
+  msg "GIT checkout done or server timeout"
+  msg "Starting make..."
+
+  rm -rf "$srcdir/$_gitname-build"
+  git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
+  cd $srcdir/$_gitname-build
+
+  # BUILD
+  cd Platform/Linux-x86/Build
+  make NI_CONF_DIR=/etc || return 1
+}
+
+package() {
+  install -d -m755 ${pkgdir}/usr/{lib,bin}
+
+  cd $srcdir/$_gitname-build/Platform/Linux-x86/Bin/Release
+  install XnSensorServer ${pkgdir}/usr/bin
+  install libXnCore.so libXnDDK.so libXnDeviceFile.so libXnDeviceSensorV2KM.so libXnFormats.so ${pkgdir}/usr/lib
+  chmod +s ${pkgdir}/usr/bin/XnSensorServer
+
+  cd $srcdir/$_gitname-build/Platform/Linux-x86/Install
+  install -d -m755 ${pkgdir}/etc/udev/rules.d
+  install 55-primesense-usb.rules ${pkgdir}/etc/udev/rules.d
+
+  cd $srcdir/$_gitname-build/Data
+  install -d -m755 ${pkgdir}/etc/primesense
+  install GlobalDefaultsKinect.ini ${pkgdir}/etc/primesense
+
+  install -d -m777 ${pkgdir}/var/log/primesense/XnSensorServer 
+}
