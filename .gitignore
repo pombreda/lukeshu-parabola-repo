@@ -1,4 +1,5 @@
-~nonfree/*
+~nonfree/
+~aur/
 *.tar.gz
 *.tgz
 *.tar.xz
