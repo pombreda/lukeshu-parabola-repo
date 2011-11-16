@@ -13,7 +13,8 @@ groups=('kde' 'kdeutils')
 makedepends=('pkgconfig' 'cmake' 'automoc4' 'kdebase-lib' 'kdebase-workspace'
 	'kdebindings-python' 'system-config-printer-common' 'libarchive' 'qimageblitz'
 	'qjson')
-source=("http://download.kde.org/stable/${pkgver}/src/${pkgbase}-${pkgver}.tar.bz2")
+source=("http://download.kde.org/stable/${pkgver}/src/${pkgbase}-${pkgver}.tar.bz2"
+        'add-ark-cliunarchiverplugin.patch')
 sha1sums=('23fc9823647152d5d8cc250a55402c8930db4059'
 	'134c0ff9be6ffccd896bd590182c21d117f07991')
 
