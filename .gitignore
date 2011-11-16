@@ -1,8 +1,9 @@
 ~nonfree/
 ~aur/
 *.tar.gz
-*.tgz
 *.tar.xz
+*.tar.bz2
+*.tgz
 
 *~
 #*#
