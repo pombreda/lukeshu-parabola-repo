@@ -1,0 +1,71 @@
+# Contributor: Sven Schneider <archlinux.sandmann@googlemail.com>
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+pkgname=libfreenect-git
+pkgver=20111115
+pkgrel=1
+pkgdesc="OpenKinect drivers and libraries for the Xbox Kinect device on Linux"
+arch=('i686' 'x86_64')
+url="http://openkinect.org"
+license=('GPL')
+depends=('libusb' 'freeglut' 'libxmu')
+makedepends=('cmake' 'git' 'python2')
+provides=('libfreenect')
+conflicts=('libfreenect')
+source=()
+md5sums=()
+
+_gitroot="git://github.com/OpenKinect/libfreenect.git"
+_gitname=libfreenect
+
+build() {
+  cd "$srcdir"
+  msg "Connecting to GIT server...."
+
+  if [[ -d "$_gitname" ]]; then
+    cd "$_gitname" && git pull origin
+    msg "The local files are updated."
+  else
+    git clone "$_gitroot" "$_gitname"
+  fi
+
+  msg "GIT checkout done or server timeout"
+  msg "Starting build..."
+
+  rm -rf "$srcdir/$_gitname-build"
+  git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
+  cd "$srcdir/$_gitname-build"
+
+  #
+  # BUILD HERE
+  #
+
+  # Install "libfreenect.hpp" to "/usr/include/libfreenect"
+  sed 's/DESTINATION include/DESTINATION include\/${projectNameLower}/g' -i "wrappers/cpp/CMakeLists.txt"
+  
+  export DYLD_FRAMEWORK_PATH=/usr/lib/python2.7/site-packages
+  
+  mkdir build
+  cd build
+  cmake \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DLIB_SUFFIX="" \
+      -DBUILD_AUDIO=ON \
+      -DBUILD_PYTHON=OFF \
+      -DPYTHON_EXECUTABLE="`which python2`" \
+      ..
+  make
+}
+
+package() {
+  # Make install
+  cd "${srcdir}/${_gitname}-build/build"
+  make DESTDIR="${pkgdir}" install
+
+  # Install udev rules
+  cd "${srcdir}/${_gitname}-build/"
+  install -Dm644 platform/linux/udev/51-kinect.rules "${pkgdir}/etc/udev/rules.d/51-kinect.rules"
+  
+  # Patch include files
+  sed 's/<libfreenect.h>/<libfreenect\/libfreenect.h>/g' -i "${pkgdir}/usr/include/libfreenect/libfreenect.hpp"
+}
