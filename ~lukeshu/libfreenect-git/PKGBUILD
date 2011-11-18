@@ -4,7 +4,7 @@
 _pkgname=libfreenect
 pkgname=${_pkgname}-git
 pkgver=20111115
-pkgrel=2
+pkgrel=3
 pkgdesc="OpenKinect drivers and libraries for the Xbox Kinect device"
 arch=('i686' 'x86_64')
 url="http://openkinect.org"
@@ -62,6 +62,10 @@ package() {
   # Make install
   cd "${srcdir}/${_gitname}-build/build"
   make DESTDIR="${pkgdir}" install
+
+  # Move audio firmware file to proper location
+  mkdir -p "${pkgdir}/usr/share/libfreenect"
+  mv "${pkgdir}/usr/share/audios.bin" "${pkgdir}/usr/share/libfreenect/audios.bin" 
 
   # Install udev rules
   cd "${srcdir}/${_gitname}-build/"
