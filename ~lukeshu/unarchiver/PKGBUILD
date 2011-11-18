@@ -15,7 +15,7 @@ license=('LGPL2.1')
 depends=('gnustep-base-libre>=1.23.0' 'openssl' 'bzip2' 'icu' 'gcc-libs' 'zlib')
 conflicts=('gnustep-base>=1.24')
 makedepends=('gcc-objc')
-source=(http://theunarchiver.googlecode.com/files/TheUnarchiver"$pkgver"_src.zip)
+source=("http://theunarchiver.googlecode.com/files/TheUnarchiver${pkgver}_src.zip")
 
 build() {
   cd "$srcdir/The Unarchiver/XADMaster"
@@ -39,47 +39,54 @@ package_unarchiver() {
 package_unar() {
   pkgver=0.4
   pkgdesc="The unar/lsar command line wrappers around libXADMaster"
-  provides=('unar')
-  conflicts+=('unar')
 
   cd "$srcdir/The Unarchiver/XADMaster"
-  install -d "$pkgdir/usr/bin/"
-  install -m755 unar lsar "$pkgdir/usr/bin/"
+  install -d "$pkgdir/usr/bin"
+  install -m755 unar lsar "$pkgdir/usr/bin"
 }
 
 package_libuniversaldetector() {
+  pkgver=0.4
   pkgdesc="Some fancy-schmancy Objective-C library that detects things?"
 
   cd "$srcdir/The Unarchiver/UniversalDetector"
-  install -d "$pkgdir/usr/lib/"
-  install libUniversalDetector.a "$pkgdir/usr/lib/"
-  install -d "$pkgdir/usr/include/"
-  install UniversalDetector.h "$pkgdir/usr/include/"
+  install -d "$pkgdir/usr/lib"
+  install libUniversalDetector.a "$pkgdir/usr/lib"
+  install -d "$pkgdir/usr/include"
+  install UniversalDetector.h "$pkgdir/usr/include"
 }
 
 package_libxadmaster() {
+  pkgver=0.4
   pkgdesc="An Objective-C library built around libxad adding support for other formats"
   depends+=('libuniversaldetector')
 
+  header_files= \
+    CommandLineCommon.h \
+    NSStringPrinting.h \
+    XADArchive.h \
+    XADRegex.h \
+    XADUnarchiver.h
+
   cd "$srcdir/The Unarchiver/XADMaster"
-  install -d "$pkgdir/usr/lib/"
-  install libXADMaster.a "$pkgdir/usr/lib/"
-  install -d "$pkgdir/usr/include/XADMaster/"
-  install XADArchive.h XADRegex.h XADUnarchiver.h "$pkgdir/usr/include/XADMaster/"
+  install -d "$pkgdir/usr/lib"
+  install libXADMaster.a "$pkgdir/usr/lib"
+  install -d "$pkgdir/usr/include/XADMaster"
+  install $header_files "$pkgdir/usr/include/XADMaster"
 }
 
 package_libxadmaster-libxad() {
-  pkgver=13.0.unar # forked from 13.0.2005.06.23 #commit 1.24 
+  pkgver=0.4 # forked from 13.0.2005.06.23 (commit 1.24)
   pkgdesc="A fork of libxad, the port of the Amiga xadmaster.library to *NIX"
   depends=('glibc')
   provides=('libxad')
   conflicts=('libxad')
 
   cd "$srcdir/The Unarchiver/XADMaster/libxad"
-  install -d "$pkgdir/usr/lib/"
-  install libxad.a "$pkgdir/usr/lib/"
-  install -d "$pkgdir/usr/include/libxad/"
-  install include/* "$pkgdir/usr/include/libxad/"
+  install -d "$pkgdir/usr/lib"
+  install libxad.a "$pkgdir/usr/lib"
+  install -d "$pkgdir/usr/include/libxad"
+  install include/* "$pkgdir/usr/include/libxad"
 }
 
 md5sums=('498ea1c984d5783322e070a71922b422')
