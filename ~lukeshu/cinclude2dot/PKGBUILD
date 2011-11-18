@@ -1,0 +1,27 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+pkgname=cinclude2dot
+pkgver=1.1
+pkgrel=1
+pkgdesc="A Perl script which analyses C/C++ code and produces a #include dependency graph."
+arch=('any')
+url="http://flourish.org/cinclude2dot/"
+license=('GPL')
+depends=('perl')
+source=('http://flourish.org/cinclude2dot/cinclude2dot'
+	'http://flourish.org/cinclude2dot/cinclude2dot.1')
+
+build() {
+  gzip -c cinclude2dot.1 > cinclude2dot.1.gz
+}
+
+package() {
+  cd "$srcdir"
+  install -d "$pkgdir/usr/bin"
+  install -m755 cinclude2dot "$pkgdir/usr/bin"
+  install -d "$pkgdir/usr/share/man/man1"
+  install cinclude2dot.1.gz "$pkgdir/usr/share/man/man1"
+}
+
+md5sums=('372ca2cba1170ae4e040f7f84b7b98b5'
+         'bfdc230a26db0c66b238e6380e6badbe')
