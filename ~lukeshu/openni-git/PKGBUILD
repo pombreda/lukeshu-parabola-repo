@@ -3,19 +3,21 @@
 # Contributor: bugix
 # Contributor: Lubosz Sarnecki <lubosz at gmail>
 
-_pkgname=openni
-pkgname=${_pkgname}-git
-pkgver=20111115
-pkgrel=3
-pkgdesc="The OpenNI Framework provides the interface for physical devices and for middleware components"
+pkgname=(
+    openni
+    openni-samples
+    
+    openni-mono
+    openni-mono-samples
+
+    openni-java
+    openni-java-samples)
+pkgver=20111116
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.openni.org/"
 license=('GPL')
-depends=('freeglut' 'libusb' 'java-environment')
-makedepends=('git')
-provides=($_pkgname)
-conflicts=($_pkgname)
-install="openni.install"
+makedepends=('git' 'doxygen' 'graphviz')
 source=()
 md5sums=()
 
@@ -24,11 +26,11 @@ _gitname="openni"
 _gitbranch="unstable"
 #_gitbranch="master"
 
-if [ "${CARCH}" = "x86_64" ]; then
-  _platform=x64
-else
-  _platform=x86
-fi
+case "${CARCH}" in
+'x86_64') _platform=x64;;
+'i686')   _platform=x86;;
+*)        _platform=UNSUPPORTED_ARCH;;
+esac
 
 build() {
   cd "${srcdir}"
@@ -46,13 +48,57 @@ build() {
 
   rm -rf "${srcdir}/${_gitname}-build"
   git clone "${srcdir}/${_gitname}" "${srcdir}/${_gitname}-build"
-  cd "${srcdir}/${_gitname}-build/Platform/Linux/Build"
+  cd "${srcdir}/${_gitname}-build"
 
   # BUILD
-  make -j1 || return 1
+  chmod 755                    "Platform/Linux/CreateRedist/RedistMaker"
+  sed -i 's/python /python2 /' "Platform/Linux/CreateRedist/RedistMaker"
+
+  cd "Platform/Linux/Build"
+
+  # Ammend the Makefile to have ...cleaner... definitions
+  echo                                                           >> Makefile
+  echo 'abs_core: $(ALL_MODULES) $(ALL_UTILS)'                   >> Makefile
+  echo 'abs_core_samples: $(CORE_SAMPLES)'                       >> Makefile
+  echo 'abs_java: $(ALL_JAVA_PROJS)'                             >> Makefile
+  echo 'abs_java_samples: $(JAVA_SAMPLES)'                       >> Makefile
+  echo 'abs_mono: $(ALL_MONO_PROJS)'                             >> Makefile  
+  echo 'abs_mono_samples: $(MONO_SAMPLES) $(MONO_FORMS_SAMPLES)' >> Makefile
+  
+  make -j1 \
+      abs_core abs_core_samples \
+      abs_java abs_java_samples \
+      abs_mono abs_mono_samples || return 1
 }
 
-package() {
+package_openni() {
+    pkgdesc="Open Natural Interface framework"
+    depends=('libusb' 'freeglut')
+    depends=('python' 'libusb' 'freeglut' 'java-environment' 'mono')
+    install="openni.install"
+}
+package_openni-samples() {
+    pkgdesc="OpenNI sample programs"
+    depends=('openni')
+}
+package_openni-java() {
+    pkgdesc="OpenNI java wrapper"
+    depends=('openni')
+}
+package_openni-java-samples() {
+    pkgdesc="OpenNI java wrapper sample programs"
+    depends=('openni-java')
+}
+package_openni-mono() {
+    pkgdesc="OpenNI mono wrapper"
+    depends=('openni')
+}
+package_openni-mono-samples() {
+    pkgdesc="OpenNI java wrapper sample programs"
+    depends=('openni-mono')
+}
+
+package_old() {
   install -d -m755 "${pkgdir}/usr/"{lib,bin,include/ni/Linux-${_platform}}
   install -d -m755 "${pkgdir}/var/lib/ni"
 
