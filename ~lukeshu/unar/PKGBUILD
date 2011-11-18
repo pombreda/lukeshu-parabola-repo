@@ -1,0 +1,91 @@
+# Contributor: Cedric Girard <girard.cedric@gmail.com>
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+pkgname=(
+  'unar'
+  'libuniversaldetector'
+  'libxadmaster'
+  'libxadmaster-libxad')
+pkgver=0.99
+pkgrel=1
+arch=('x86_64' 'i686')
+url="http://wakaba.c3.cx/s/apps/unarchiver.html"
+license=('LGPL2.1')
+depends=('gnustep-base-libre>=1.23.0' 'openssl' 'bzip2' 'icu' 'gcc-libs' 'zlib')
+conflicts=('gnustep-base>=1.24')
+makedepends=('gcc-objc')
+source=("https://theunarchiver.googlecode.com/files/unar${pkgver}_src.zip")
+
+build() {
+  cd "$srcdir/XADMaster"
+
+  # build everything
+  . /usr/share/GNUstep/Makefiles/GNUstep.sh
+  make -f Makefile.linux
+
+  # make libxad into a lib file
+  cd libxad
+  rm -f libxad.a
+  ar rcs libxad.a all.o clients.o unix/emulation.o unix/init.o
+
+  # compress man pages
+  cd "$srcdir/Extra"
+  gzip -c unar.1 > unar.1.gz
+  gzip -c lsar.1 > lsar.1.gz
+}
+
+package_unar() {
+  pkgdesc="The unar/lsar command line wrappers around libXADMaster"
+
+  cd "$srcdir/XADMaster"
+  install -d "$pkgdir/usr/bin"
+  install -m755 unar lsar "$pkgdir/usr/bin"
+
+  cd "$srcdir/Extra"
+  install -d "$pkgdir/usr/share/man/man1"
+  install unar.1.gz lsar.1.gz "$pkgdir/usr/share/man/man1"
+}
+
+package_libuniversaldetector() {
+  pkgdesc="Some fancy-schmancy Objective-C library that detects things?"
+
+  cd "$srcdir/UniversalDetector"
+  install -d "$pkgdir/usr/lib/"
+  install libUniversalDetector.a "$pkgdir/usr/lib/"
+  install -d "$pkgdir/usr/include/"
+  install UniversalDetector.h "$pkgdir/usr/include/"
+}
+
+package_libxadmaster() {
+  pkgdesc="An Objective-C library built around libxad adding support for other formats"
+  depends+=('libuniversaldetector')
+
+  header_files= \
+    CommandLineCommon.h \
+    NSStringPrinting.h \
+    XADArchive.h \
+    XADRegex.h \
+    XADSimpleUnarchvier.h \
+    XADUnarchiver.h
+
+  cd "$srcdir/XADMaster"
+  install -d "$pkgdir/usr/lib"
+  install libXADMaster.a "$pkgdir/usr/lib"
+  install -d "$pkgdir/usr/include/XADMaster"
+  install $header_files "$pkgdir/usr/include/XADMaster"
+}
+
+package_libxadmaster-libxad() {
+  pkgdesc="A fork of libxad, the port of the Amiga xadmaster.library to *NIX"
+  depends=('glibc')
+  provides=('libxad')
+  conflicts=('libxad')
+
+  cd "$srcdir/XADMaster/libxad"
+  install -d "$pkgdir/usr/lib"
+  install libxad.a "$pkgdir/usr/lib"
+  install -d "$pkgdir/usr/include/libxad"
+  install include/* "$pkgdir/usr/include/libxad"
+}
+
+md5sums=('2169b920cf62956e495cfd5e0780a41e')
