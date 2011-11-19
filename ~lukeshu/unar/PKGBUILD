@@ -19,6 +19,10 @@ source=("https://theunarchiver.googlecode.com/files/unar${pkgver}_src.zip")
 build() {
   cd "$srcdir/XADMaster"
 
+  # remove some OS X object files that were accidentally included in the dist
+  # (we've all done it)
+  find "$srcdir" -name '*.o' -delete
+
   # build everything
   . /usr/share/GNUstep/Makefiles/GNUstep.sh
   make -f Makefile.linux
@@ -60,13 +64,14 @@ package_libxadmaster() {
   pkgdesc="An Objective-C library built around libxad adding support for other formats"
   depends+=('libuniversaldetector')
 
-  header_files= \
-    CommandLineCommon.h \
-    NSStringPrinting.h \
-    XADArchive.h \
-    XADRegex.h \
-    XADSimpleUnarchvier.h \
+  header_files='
+    CommandLineCommon.h
+    NSStringPrinting.h
+    XADArchive.h
+    XADRegex.h
+    XADSimpleUnarchiver.h
     XADUnarchiver.h
+    '
 
   cd "$srcdir/XADMaster"
   install -d "$pkgdir/usr/lib"

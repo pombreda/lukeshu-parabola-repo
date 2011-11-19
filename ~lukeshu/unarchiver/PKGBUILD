@@ -61,12 +61,13 @@ package_libxadmaster() {
   pkgdesc="An Objective-C library built around libxad adding support for other formats"
   depends+=('libuniversaldetector')
 
-  header_files= \
-    CommandLineCommon.h \
-    NSStringPrinting.h \
-    XADArchive.h \
-    XADRegex.h \
+  header_files='
+    CommandLineCommon.h
+    NSStringPrinting.h
+    XADArchive.h
+    XADRegex.h
     XADUnarchiver.h
+    '
 
   cd "$srcdir/The Unarchiver/XADMaster"
   install -d "$pkgdir/usr/lib"
