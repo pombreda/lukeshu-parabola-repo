@@ -69,7 +69,8 @@ package() {
 
   # Install udev rules
   cd "${srcdir}/${_gitname}-build/"
-  install -Dm644 platform/linux/udev/51-kinect.rules "${pkgdir}/etc/udev/rules.d/51-kinect.rules"
+  install -d "${pkgdir}/etc/udev/rules.d"
+  install -m644 platform/linux/udev/51-kinect.rules "${pkgdir}/etc/udev/rules.d"
   
   # Patch include files
   sed 's/<libfreenect.h>/<libfreenect\/libfreenect.h>/g' -i "${pkgdir}/usr/include/libfreenect/libfreenect.hpp"

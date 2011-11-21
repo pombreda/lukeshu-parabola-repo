@@ -20,7 +20,7 @@ package() {
   install -d "$pkgdir/usr/bin"
   install -m755 cinclude2dot "$pkgdir/usr/bin"
   install -d "$pkgdir/usr/share/man/man1"
-  install cinclude2dot.1.gz "$pkgdir/usr/share/man/man1"
+  install -m644 cinclude2dot.1.gz "$pkgdir/usr/share/man/man1"
 }
 
 md5sums=('372ca2cba1170ae4e040f7f84b7b98b5'
