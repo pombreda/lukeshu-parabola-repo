@@ -1,0 +1,56 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+# NOTE: This currently does not build.
+
+pkgname=xadmaster
+pkgver=13.0.2006.06.21
+pkgrel=1
+pkgdesc="The port of the Amiga 'xadmaster.library' to *NIX"
+arch=('i686' 'x86_64')
+url="http://www.dstoecker.eu/xadmaster.html"
+license=('LGPL2.1')
+groups=()
+depends=('glibc')
+makedepends=('cvs')
+provides=('libxad')
+conflicts=('libxad')
+replaces=()
+backup=()
+options=()
+install=
+source=()
+noextract=()
+md5sums=()
+
+_cvsroot=:pserver:anonymous@libxad.cvs.sourceforge.net:/cvsroot/libxad
+_cvsmod=libxad
+
+build() {
+  cd "$srcdir"
+  msg "Connecting to $_cvsmod.sourceforge.net CVS server...."
+
+  if [[ -d "$_cvsmod/CVS" ]]; then
+    cd "$_cvsmod"
+    cvs -z3 update -d
+  else
+    cvs -z3 -d "$_cvsroot" co -D "$pkgver" -f "$_cvsmod"
+    cd "$_cvsmod"
+  fi
+
+  msg "CVS checkout done or server timeout"
+  msg "Starting build..."
+
+  rm -rf "$srcdir/$_cvsmod-build"
+  cp -r "$srcdir/$_cvsmod" "$srcdir/$_cvsmod-build"
+  cd "$srcdir/$_cvsmod-build"
+
+  # BUILD
+  cd portable
+  autoconf # FIXME: On my system this fails, I don't know what to do
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "$srcdir/$_cvsmod-build"
+  make DESTDIR="$pkgdir/" install
+}
