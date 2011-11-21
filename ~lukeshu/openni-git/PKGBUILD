@@ -93,10 +93,13 @@ abs_mono_samples: $(MONO_SAMPLES) $(MONO_FORMS_SAMPLES)
 package_openni() {
   pkgdesc="Open Natural Interface framework"
   depends=('openni-core')
-  recomends=('openni-docs')
+  optdepends=('openni-docs: programmer documentation')
 }
 
 package_openni-docs() {
+  pkgdesc="OpenNI programmer documentation"
+  arch=('any')
+
   cd "${srcdir}/${_gitname}-build/Source/DoxyGen/"
   install -d "${pkgdir}/usr/share/openni"
   cp -r html "${pkgdir}/usr/share/openni"
@@ -106,7 +109,7 @@ package_openni-core() {
   pkgdesc="OpenNI core libraries"
   depends=('libusb' 'freeglut')
   install="openni.install"
-  
+
   cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
 
   LIB_FILES='
@@ -134,7 +137,7 @@ package_openni-core() {
 
 package_openni-java() {
   pkgdesc="OpenNI java wrapper"
-  depends=('openni')
+  depends=('openni' 'java-environment')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
 
@@ -147,7 +150,7 @@ package_openni-java() {
 
 package_openni-mono() {
   pkgdesc="OpenNI mono wrapper"
-  depends=('openni')
+  depends=('openni' 'mono')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
   
@@ -179,7 +182,8 @@ JAVA_SAMPLES='SimpleRead SimpleViewer UserTracker'
 
 package_openni-core-samples() {
   pkgdesc="OpenNI sample programs"
-  depends=('openni')
+  depends=('openni-core')
+  optdepends=('openni-core-samples-source: source code for the samples')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
   install -d "${pkgdir}/usr/bin"
@@ -190,7 +194,7 @@ package_openni-core-samples() {
 }
 package_openni-core-samples-source() {
   pkgdesc="OpenNI sample programs source code"
-  depends=('openni')
+  depends=('openni-core')
 
   cd "${srcdir}/${_gitname}-build"
   for sample in Viewer $CORE_SAMPLES; do
@@ -201,6 +205,8 @@ package_openni-core-samples-source() {
 package_openni-java-samples() {
   pkgdesc="OpenNI java wrapper sample programs"
   depends=('openni-java')
+  optdepends=('openni-java-samples-source: source code for the samples')
+  arch=('any')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
   install -d "${pkgdir}/usr/bin"
@@ -226,6 +232,7 @@ package_openni-java-samples-source() {
 package_openni-mono-samples() {
   pkgdesc="OpenNI java wrapper sample programs"
   depends=('openni-mono')
+  optdepends=('openni-mono-samples-source: source code for the samples')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
   install -d "${pkgdir}/usr/bin"
