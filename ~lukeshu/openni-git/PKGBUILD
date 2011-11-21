@@ -5,46 +5,58 @@
 
 pkgname=(
     openni
+    openni-docs
 
     openni-core
     openni-core-samples
+    openni-core-samples-source
     
     openni-mono
     openni-mono-samples
+    openni-mono-samples-source
 
     openni-java
-    openni-java-samples)
-pkgver=20111116
+    openni-java-samples
+    openni-java-samples-source
+    )
+pkgver=20111121
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.openni.org/"
 license=('GPL')
-# The README says it works with python3 works--it doesn't
-makedepends=('git' 'doxygen' 'graphviz' 'python2')
+makedepends=('git' 'doxygen' 'graphviz')
 source=()
 md5sums=()
 
 _gitroot="git://github.com/OpenNI/OpenNI.git"
 _gitname="openni"
-_gitbranch="unstable"
-#_gitbranch="master"
+#_gitbranch="unstable"
+_gitbranch="master"
 
 case "${CARCH}" in
-'x86_64') _platform=x64;;
-'i686')   _platform=x86;;
+'x86_64') _platform=Linux-x86;;
+'i686')   _platform=Linux-x86;;
+'arm')    _platform=Linux-Arm;; # untested
 *)        _platform=UNSUPPORTED_ARCH;;
 esac
+
+export MAKEFLAGS+=' -j1 '
 
 build() {
   cd "${srcdir}"
   msg "Connecting to GIT server...."
 
   if [ -d ${_gitname} ] ; then
-    cd ${_gitname} && git pull origin
+    cd ${_gitname}
+    git checkout ${_gitbranch}
+    git pull origin
     msg "The local files are updated."
   else
-    git clone -b ${_gitbranch} ${_gitroot} ${_gitname}
+    git clone ${_gitroot} ${_gitname}
+    cd ${_gitname}
   fi
+  git checkout ${_gitbranch}
+  cd ..
 
   msg "GIT checkout done or server timeout"
   msg "Starting make..."
@@ -53,70 +65,186 @@ build() {
   git clone "${srcdir}/${_gitname}" "${srcdir}/${_gitname}-build"
   cd "${srcdir}/${_gitname}-build"
 
-  # BUILD
-  chmod 755                    "Platform/Linux/CreateRedist/RedistMaker"
-  sed -i 's/python /python2 /' "Platform/Linux/CreateRedist/RedistMaker"
+  # PATCH
+  sed -i 's/python /python2 /' "Platform/${_platform}/CreateRedist/RedistMaker"
+  echo '
+abs_core: $(ALL_MODULES) $(ALL_UTILS)
+abs_core_samples: $(CORE_SAMPLES)
+abs_java: $(ALL_JAVA_PROJS)
+abs_java_samples: $(JAVA_SAMPLES)
+abs_mono: $(ALL_MONO_PROJS)
+abs_mono_samples: $(MONO_SAMPLES) $(MONO_FORMS_SAMPLES)
+' >> "Platform/${_platform}/Build/Makefile"
 
-  cd "Platform/Linux/Build"
-
-  # Ammend the Makefile to have ...cleaner... definitions
-  echo                                                           >> Makefile
-  echo 'abs_core: $(ALL_MODULES) $(ALL_UTILS)'                   >> Makefile
-  echo 'abs_core_samples: $(CORE_SAMPLES)'                       >> Makefile
-  echo 'abs_java: $(ALL_JAVA_PROJS)'                             >> Makefile
-  echo 'abs_java_samples: $(JAVA_SAMPLES)'                       >> Makefile
-  echo 'abs_mono: $(ALL_MONO_PROJS)'                             >> Makefile  
-  echo 'abs_mono_samples: $(MONO_SAMPLES) $(MONO_FORMS_SAMPLES)' >> Makefile
   
+  # BUILD
+  cd "Platform/${_platform}/Build"
   make -j1 \
       abs_core abs_core_samples \
       abs_java abs_java_samples \
       abs_mono abs_mono_samples || return 1
+
+  cd '../../../Source/DoxyGen'
+  mkdir html
+  doxygen Doxyfile
+  rm -rf html/*.map html*.md5 html/*.hhc html/*.hhp
 }
 
 package_openni() {
-    pkgdesc="Open Natural Interface framework"
-    depends=('openni-core')
-}
-package_openni-core() {
-    pkgdesc="OpenNI core libraries"
-    depends=('libusb' 'freeglut')
-    install="openni.install"
-}
-package_openni-core-samples() {
-    pkgdesc="OpenNI sample programs"
-    depends=('openni')
-}
-package_openni-java() {
-    pkgdesc="OpenNI java wrapper"
-    depends=('openni')
-}
-package_openni-java-samples() {
-    pkgdesc="OpenNI java wrapper sample programs"
-    depends=('openni-java')
-}
-package_openni-mono() {
-    pkgdesc="OpenNI mono wrapper"
-    depends=('openni')
-}
-package_openni-mono-samples() {
-    pkgdesc="OpenNI java wrapper sample programs"
-    depends=('openni-mono')
+  pkgdesc="Open Natural Interface framework"
+  depends=('openni-core')
+  recomends=('openni-docs')
 }
 
-package_old() {
-  install -d "${pkgdir}/var/lib/ni"
+package_openni-docs() {
+  cd "${srcdir}/${_gitname}-build/Source/DoxyGen/"
+  install -d "${pkgdir}/usr/share/openni"
+  cp -r html "${pkgdir}/usr/share/openni"
+}
+
+package_openni-core() {
+  pkgdesc="OpenNI core libraries"
+  depends=('libusb' 'freeglut')
+  install="openni.install"
+  
+  cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
+
+  LIB_FILES='
+    libnimCodecs.so
+    libnimMockNodes.so
+    libnimRecorder.so
+    libOpenNI.so
+    '
+  install -d "${pkgdir}/usr/lib"
+  install -m755 $LIB_FILES "${pkgdir}/usr/lib"
+
+  BIN_FILES='niReg niLicense'
+  install -d "${pkgdir}/usr/bin"
+  install -m755 $BIN_FILES "${pkgdir}/usr/bin"
 
   cd "${srcdir}/${_gitname}-build/Include"
-  install -d "${pkgdir}/usr/include/ni/Linux-${_platform}"
+  install -d "${pkgdir}/usr/include/ni"
   install -m644 *.h "${pkgdir}/usr/include/ni"
-  install -m644 Linux-${_platform}/* "${pkgdir}/usr/include/ni/Linux-${_platform}"
+  cp -r "${_platform}" "${pkgdir}/usr/include/ni"
 
-  cd "${srcdir}/${_gitname}-build/Platform/Linux/Bin/${_platform}-Release"
-  install -d "${pkgdir}/usr/bin"
-  install -m755 niLicense niReg "${pkgdir}/usr/bin"
+  cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Build"
+  install -d "${pkgdir}/usr/share"
+  cp -r Common "${pkgdir}/usr/share/common"
+}
 
-  libfiles='libnimCodecs.so libnimMockNodes.so libnimRecorder.so libOpenNI.so'
+package_openni-java() {
+  pkgdesc="OpenNI java wrapper"
+  depends=('openni')
+
+  cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
+
   install -d "${pkgdir}/usr/lib"
-  install -m755 $libfiles "${pkgdir}/usr/lib"
+  install -m755 libOpenNI.jni.so "${pkgdir}/usr/lib"
+  
+  install -d "${pkgdir}/usr/share/openni/java"
+  install -m755 org.OpenNI.jar "${pkgdir}/usr/share/openni/java"
+}
+
+package_openni-mono() {
+  pkgdesc="OpenNI mono wrapper"
+  depends=('openni')
+
+  cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
+  
+  install -d "${pkgdir}/usr/share/openni/mono"
+  install -m755 OpenNI.net.dll "${pkgdir}/usr/share/openni/mono"
+}
+
+# SAMPLES
+
+_install_sample_source() {
+  sample=$1
+  makefile="Platform/${_platform}/Build/Samples/$sample/Makefile"
+  install -d                "${pkgdir}/usr/share/openni/samples"
+  cp -r "Samples/$sample"   "${pkgdir}/usr/share/openni/samples/$sample"
+  install -m644 "$makefile" "${pkgdir}/usr/share/openni/samples/$sample"
+}
+
+# Leave out NiViewer, it's set up wrong
+CORE_SAMPLES='
+  AudioSample
+  BackRecorder
+  CRead
+  ConvertXToONI
+  RecordSynthetic
+  SimpleCreate
+              SimpleRead SimpleViewer UserTracker'
+MONO_SAMPLES='SimpleRead SimpleViewer UserTracker'
+JAVA_SAMPLES='SimpleRead SimpleViewer UserTracker'
+
+package_openni-core-samples() {
+  pkgdesc="OpenNI sample programs"
+  depends=('openni')
+
+  cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
+  install -d "${pkgdir}/usr/bin"
+  install -m755 NiViewer "${pkgdir}/usr/bin/niSample-Viewer"
+  for sample in $CORE_SAMPLES; do
+    install -m766 Sample-Ni$sample "${pkgdir}/usr/bin/niSample-$sample"
+  done
+}
+package_openni-core-samples-source() {
+  pkgdesc="OpenNI sample programs source code"
+  depends=('openni')
+
+  cd "${srcdir}/${_gitname}-build"
+  for sample in Viewer $CORE_SAMPLES; do
+    _install_sample_source Ni$sample
+  done
+}
+
+package_openni-java-samples() {
+  pkgdesc="OpenNI java wrapper sample programs"
+  depends=('openni-java')
+
+  cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
+  install -d "${pkgdir}/usr/bin"
+  install -d "${pkgdir}/usr/share/openni/java"
+  for sample in $JAVA_SAMPLES; do
+    install -m644 org.OpenNI.Samples.$sample.jar "${pkgdir}/usr/share/openni/java"
+    echo "#/bin/sh
+java -jar /usr/share/openni/java/org.OpenNI.Samples.$sample.jar $@
+" > "${pkgdir}/usr/bin/niSample-$sample.jar"
+    chmod 755 "${pkgdir}/usr/bin/niSample-$sample.jar"
+  done
+}
+package_openni-java-samples-source() {
+  pkgdesc="OpenNI java wrapper sample programs source code"
+  depends=('openni-java')
+
+  cd "${srcdir}/${_gitname}-build"
+  for sample in $JAVA_SAMPLES; do
+    _install_sample_source $sample.java
+  done
+}
+
+package_openni-mono-samples() {
+  pkgdesc="OpenNI java wrapper sample programs"
+  depends=('openni-mono')
+
+  cd "${srcdir}/${_gitname}-build/Platform/${_platform}/Bin/Release"
+  install -d "${pkgdir}/usr/bin"
+  install -d "${pkgdir}/usr/share/openni/mono"
+  for sample in $MONO_SAMPLES; do
+    install -m755 $sample.net.exe "${pkgdir}/usr/share/openni/mono"
+    echo "#/bin/sh
+cd /usr/share/openni/mono
+mono $sample.net.exe $@
+" > "${pkgdir}/usr/bin/niSample-$sample.net"
+    chmod 755 "${pkgdir}/usr/bin/niSample-$sample.net"
+  done
+}
+package_openni-mono-samples-source() {
+  pkgdesc="OpenNI mono wrapper sample programs source code"
+  depends=('openni-mono')
+
+  cd "${srcdir}/${_gitname}-build"
+  for sample in $MONO_SAMPLES; do
+    _install_sample_source $sample.net
+  done
 }
