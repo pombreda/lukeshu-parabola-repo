@@ -1,14 +1,19 @@
-~nonfree/
+# probably source downloads
 *.tar.gz
 *.tar.xz
 *.tar.bz2
 *.tgz
 *.zip
 
-*~
-#*#
+# pacman things
 src/
 pkg/
 *.pkg.tar.*
 *.src.tar.*
+
+# idk, the parabola .gitignore ignores it
 namcap.log
+
+# I don't want to track these repos
+~dosemu
+~nonfree
