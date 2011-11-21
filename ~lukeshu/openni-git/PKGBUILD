@@ -5,7 +5,9 @@
 
 pkgname=(
     openni
-    openni-samples
+
+    openni-core
+    openni-core-samples
     
     openni-mono
     openni-mono-samples
@@ -17,7 +19,8 @@ pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.openni.org/"
 license=('GPL')
-makedepends=('git' 'doxygen' 'graphviz')
+# The README says it works with python3 works--it doesn't
+makedepends=('git' 'doxygen' 'graphviz' 'python2')
 source=()
 md5sums=()
 
@@ -73,11 +76,14 @@ build() {
 
 package_openni() {
     pkgdesc="Open Natural Interface framework"
+    depends=('openni-core')
+}
+package_openni-core() {
+    pkgdesc="OpenNI core libraries"
     depends=('libusb' 'freeglut')
-    depends=('python' 'libusb' 'freeglut' 'java-environment' 'mono')
     install="openni.install"
 }
-package_openni-samples() {
+package_openni-core-samples() {
     pkgdesc="OpenNI sample programs"
     depends=('openni')
 }
@@ -99,15 +105,18 @@ package_openni-mono-samples() {
 }
 
 package_old() {
-  install -d -m755 "${pkgdir}/usr/"{lib,bin,include/ni/Linux-${_platform}}
-  install -d -m755 "${pkgdir}/var/lib/ni"
+  install -d "${pkgdir}/var/lib/ni"
 
   cd "${srcdir}/${_gitname}-build/Include"
-  install *.h "${pkgdir}/usr/include/ni"
-  install Linux-${_platform}/* "${pkgdir}/usr/include/ni/Linux-${_platform}"
+  install -d "${pkgdir}/usr/include/ni/Linux-${_platform}"
+  install -m644 *.h "${pkgdir}/usr/include/ni"
+  install -m644 Linux-${_platform}/* "${pkgdir}/usr/include/ni/Linux-${_platform}"
 
   cd "${srcdir}/${_gitname}-build/Platform/Linux/Bin/${_platform}-Release"
-  install niLicense niReg "${pkgdir}/usr/bin"
+  install -d "${pkgdir}/usr/bin"
+  install -m755 niLicense niReg "${pkgdir}/usr/bin"
 
-  install libnimCodecs.so libnimMockNodes.so libnimRecorder.so libOpenNI.so "${pkgdir}/usr/lib"
+  libfiles='libnimCodecs.so libnimMockNodes.so libnimRecorder.so libOpenNI.so'
+  install -d "${pkgdir}/usr/lib"
+  install -m755 $libfiles "${pkgdir}/usr/lib"
 }
