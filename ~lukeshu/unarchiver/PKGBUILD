@@ -78,7 +78,7 @@ package_libxadmaster() {
 
 package_libxadmaster-libxad() {
   pkgver=0.4 # forked from 13.0.2005.06.23 (commit 1.24)
-  pkgdesc="A fork of libxad, the port of the Amiga xadmaster.library to *NIX"
+  pkgdesc="A fork of libxad, the port of the Amiga 'xadmaster.library' to *NIX"
   depends=('glibc')
   provides=('libxad')
   conflicts=('libxad')

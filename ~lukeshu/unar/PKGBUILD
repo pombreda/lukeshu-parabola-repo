@@ -81,7 +81,7 @@ package_libxadmaster() {
 }
 
 package_libxadmaster-libxad() {
-  pkgdesc="A fork of libxad, the port of the Amiga xadmaster.library to *NIX"
+  pkgdesc="A fork of libxad, the port of the Amiga 'xadmaster.library' to *NIX"
   depends=('glibc')
   provides=('libxad')
   conflicts=('libxad')
