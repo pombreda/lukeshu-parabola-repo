@@ -4,7 +4,7 @@
 # Contributor: Lubosz Sarnecki <lubosz at gmail>
 
 # unfortunately we can't use $_suf in function names, but sed makes it ok
-_suf='-git'
+_suf=''
 pkgname=(
     openni$_suf
     openni$_suf-docs
@@ -21,7 +21,7 @@ pkgname=(
     openni$_suf-java-samples
     openni$_suf-java-samples-source
     )
-pkgver=20111121
+pkgver=1.3.3.6
 pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.openni.org/"
@@ -33,7 +33,8 @@ md5sums=()
 _gitroot="git://github.com/OpenNI/OpenNI.git"
 _gitname="openni"
 #_gitbranch="unstable"
-_gitbranch="master"
+#_gitbranch="master"
+_gitbranch="Stable-$pkgver"
 
 _os='Linux'
 case "${CARCH}" in
@@ -71,6 +72,7 @@ build() {
 
   # PATCH
   sed -i 's/python /python2 /' "Platform/${_platform}/CreateRedist/RedistMaker"
+  mv Wrappers/OpenNI.java/src/org/OpenNI/AlternativeView{p,P}ointCapability.java
   echo '
 abs_core: $(ALL_MODULES) $(ALL_UTILS)
 abs_core_samples: $(CORE_SAMPLES)
@@ -94,7 +96,7 @@ abs_mono_samples: $(MONO_SAMPLES) $(MONO_FORMS_SAMPLES)
   rm -rf html/*.map html*.md5 html/*.hhc html/*.hhp
 }
 
-package_openni-git() {
+package_openni() {
   pkgdesc="Open Natural Interface framework"
   depends=("openni$_suf-core")
   optdepends=("openni$_suf-docs: programmer documentation")
@@ -102,7 +104,7 @@ package_openni-git() {
   conflicts=('openni')
 }
 
-package_openni-git-docs() {
+package_openni-docs() {
   pkgdesc="OpenNI programmer documentation"
   arch=('any')
   provides=('openni-docs')
@@ -113,7 +115,7 @@ package_openni-git-docs() {
   cp -r html "${pkgdir}/usr/share/openni"
 }
 
-package_openni-git-core() {
+package_openni-core() {
   pkgdesc="OpenNI core libraries"
   depends=('libusb' 'freeglut')
   install="openni.install"
@@ -145,7 +147,7 @@ package_openni-git-core() {
   cp -r Common "${pkgdir}/usr/share/common"
 }
 
-package_openni-git-java() {
+package_openni-java() {
   pkgdesc="OpenNI java wrapper"
   depends=("openni$_suf" 'java-environment')
   provides=('openni-java')
@@ -160,7 +162,7 @@ package_openni-git-java() {
   install -m755 org.OpenNI.jar "${pkgdir}/usr/share/openni/java"
 }
 
-package_openni-git-mono() {
+package_openni-mono() {
   pkgdesc="OpenNI mono wrapper"
   depends=("openni$_suf" 'mono')
   provides=('openni-mono')
@@ -194,7 +196,7 @@ CORE_SAMPLES='
 MONO_SAMPLES='SimpleRead SimpleViewer UserTracker'
 JAVA_SAMPLES='SimpleRead SimpleViewer UserTracker'
 
-package_openni-git-core-samples() {
+package_openni-core-samples() {
   pkgdesc="OpenNI sample programs"
   depends=("openni$_suf-core")
   optdepends=('openni-core-samples-source: source code for the samples')
@@ -208,7 +210,7 @@ package_openni-git-core-samples() {
     install -m766 Sample-Ni$sample "${pkgdir}/usr/bin/niSample-$sample"
   done
 }
-package_openni-git-core-samples-source() {
+package_openni-core-samples-source() {
   pkgdesc="OpenNI sample programs source code"
   depends=("openni$_suf-core")
   provides=('openni-core-samples-source')
@@ -221,7 +223,7 @@ package_openni-git-core-samples-source() {
   done
 }
 
-package_openni-git-java-samples() {
+package_openni-java-samples() {
   pkgdesc="OpenNI java wrapper sample programs"
   depends=("openni$_suf-java")
   optdepends=("openni$_suf-java-samples-source: source code for the samples")
@@ -240,7 +242,7 @@ java -jar /usr/share/openni/java/org.OpenNI.Samples.$sample.jar $@
     chmod 755 "${pkgdir}/usr/bin/niSample-$sample.jar"
   done
 }
-package_openni-git-java-samples-source() {
+package_openni-java-samples-source() {
   pkgdesc="OpenNI java wrapper sample programs source code"
   depends=("openni$_suf-java")
   provides=('openni-java-samples-source')
@@ -253,7 +255,7 @@ package_openni-git-java-samples-source() {
   done
 }
 
-package_openni-git-mono-samples() {
+package_openni-mono-samples() {
   pkgdesc="OpenNI java wrapper sample programs"
   depends=("openni$_suf-mono")
   optdepends=("openni$_suf-mono-samples-source: source code for the samples")
@@ -272,7 +274,7 @@ mono $sample.net.exe $@
     chmod 755 "${pkgdir}/usr/bin/niSample-$sample.net"
   done
 }
-package_openni-git-mono-samples-source() {
+package_openni-mono-samples-source() {
   pkgdesc="OpenNI mono wrapper sample programs source code"
   depends=("openni$_suf-mono")
   provides=('openni-mono-samples-source')
