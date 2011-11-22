@@ -22,7 +22,7 @@ pkgname=(
     openni$_suf-java-samples-source
     )
 pkgver=20111121
-pkgrel=3
+pkgrel=4
 arch=('i686' 'x86_64')
 url="http://www.openni.org/"
 license=('GPL')
@@ -98,15 +98,15 @@ package_openni-unstable-git() {
   pkgdesc="Open Natural Interface framework"
   depends=("openni$_suf-core")
   optdepends=("openni$_suf-docs: programmer documentation")
-  provides=('openni')
-  conflicts=('openni')
+  provides=('openni' 'openni-unstable')
+  conflicts=('openni' 'openni-unstable')
 }
 
 package_openni-unstable-git-docs() {
   pkgdesc="OpenNI programmer documentation"
   arch=('any')
-  provides=('openni-docs')
-  conflicts=('openni-docs')
+  provides=('openni-docs' 'openni-unstable-docs')
+  conflicts=('openni-docs' 'openni-unstable-docs')
 
   cd "${srcdir}/${_gitname}-build/Source/DoxyGen/"
   install -d "${pkgdir}/usr/share/openni"
@@ -117,8 +117,8 @@ package_openni-unstable-git-core() {
   pkgdesc="OpenNI core libraries"
   depends=('libusb' 'freeglut')
   install="openni.install"
-  provides=('openni-core')
-  conflicts=('openni-core')
+  provides=('openni-core' 'openni-unstable-core')
+  conflicts=('openni-core' 'openni-unstable-core')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_os}/Bin/${_arch}-Release"
 
@@ -148,8 +148,8 @@ package_openni-unstable-git-core() {
 package_openni-unstable-git-java() {
   pkgdesc="OpenNI java wrapper"
   depends=("openni$_suf" 'java-environment')
-  provides=('openni-java')
-  conflicts=('openni-java')
+  provides=('openni-java' 'openni-unstable-java')
+  conflicts=('openni-java' 'openni-unstable-java')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_os}/Bin/${_arch}-Release"
 
@@ -163,8 +163,8 @@ package_openni-unstable-git-java() {
 package_openni-unstable-git-mono() {
   pkgdesc="OpenNI mono wrapper"
   depends=("openni$_suf" 'mono')
-  provides=('openni-mono')
-  conflicts=('openni-mono')
+  provides=('openni-mono' 'openni-unstable-mono')
+  conflicts=('openni-mono' 'openni-unstable-mono')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_os}/Bin/${_arch}-Release"
   
@@ -198,8 +198,8 @@ package_openni-unstable-git-core-samples() {
   pkgdesc="OpenNI sample programs"
   depends=("openni$_suf-core")
   optdepends=('openni-core-samples-source: source code for the samples')
-  provides=('openni-core-samples')
-  conflicts=('openni-core-samples')
+  provides=('openni-core-samples' 'openni-unstable-core-samples')
+  conflicts=('openni-core-samples' 'openni-unstable-core-samples')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_os}/Bin/${_arch}-Release"
   install -d "${pkgdir}/usr/bin"
@@ -211,8 +211,8 @@ package_openni-unstable-git-core-samples() {
 package_openni-unstable-git-core-samples-source() {
   pkgdesc="OpenNI sample programs source code"
   depends=("openni$_suf-core")
-  provides=('openni-core-samples-source')
-  conflicts=('openni-core-samples-source')
+  provides=('openni-core-samples-source' 'openni-unstable-core-samples-source')
+  conflicts=('openni-core-samples-source' 'openni-unstable-core-samples-source')
   options+=('!strip')
 
   cd "${srcdir}/${_gitname}-build"
@@ -226,8 +226,8 @@ package_openni-unstable-git-java-samples() {
   depends=("openni$_suf-java")
   optdepends=("openni$_suf-java-samples-source: source code for the samples")
   arch=('any')
-  provides=('openni-java-samples')
-  conflicts=('openni-java-samples')
+  provides=('openni-java-samples' 'openni-unstable-java-samples')
+  conflicts=('openni-java-samples' 'openni-unstable-java-samples')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_os}/Bin/${_arch}-Release"
   install -d "${pkgdir}/usr/bin"
@@ -243,8 +243,8 @@ java -jar /usr/share/openni/java/org.OpenNI.Samples.$sample.jar $@
 package_openni-unstable-git-java-samples-source() {
   pkgdesc="OpenNI java wrapper sample programs source code"
   depends=("openni$_suf-java")
-  provides=('openni-java-samples-source')
-  conflicts=('openni-java-samples-source')
+  provides=('openni-java-samples-source' 'openni-unstable-java-samples-source')
+  conflicts=('openni-java-samples-source' 'openni-unstable-java-samples-source')
   options+=('!strip')
 
   cd "${srcdir}/${_gitname}-build"
@@ -257,8 +257,8 @@ package_openni-unstable-git-mono-samples() {
   pkgdesc="OpenNI java wrapper sample programs"
   depends=("openni$_suf-mono")
   optdepends=("openni$_suf-mono-samples-source: source code for the samples")
-  provides=('openni-mono-samples')
-  conflicts=('openni-mono-samples')
+  provides=('openni-mono-samples' 'openni-unstable-mono-samples')
+  conflicts=('openni-mono-samples' 'openni-unstable-mono-samples')
 
   cd "${srcdir}/${_gitname}-build/Platform/${_os}/Bin/${_arch}-Release"
   install -d "${pkgdir}/usr/bin"
@@ -275,8 +275,8 @@ mono $sample.net.exe $@
 package_openni-unstable-git-mono-samples-source() {
   pkgdesc="OpenNI mono wrapper sample programs source code"
   depends=("openni$_suf-mono")
-  provides=('openni-mono-samples-source')
-  conflicts=('openni-mono-samples-source')
+  provides=('openni-mono-samples-source' 'openni-unstable-mono-samples-source')
+  conflicts=('openni-mono-samples-source' 'openni-unstable-mono-samples-source')
   options+=('!strip')
 
   cd "${srcdir}/${_gitname}-build"
