@@ -22,7 +22,7 @@ pkgname=(
     openni$_suf-java-samples-source
     )
 pkgver=1.3.3.6
-pkgrel=3
+pkgrel=4
 arch=('i686' 'x86_64')
 url="http://www.openni.org/"
 license=('GPL')
@@ -30,7 +30,7 @@ makedepends=('git' 'doxygen' 'graphviz')
 source=()
 md5sums=()
 
-_gitroot="git://github.com/OpenNI/OpenNI.git"
+__gitroot="git://github.com/OpenNI/OpenNI.git"
 _gitname="openni"
 #_gitbranch="unstable"
 #_gitbranch="master"
@@ -57,7 +57,7 @@ build() {
     git pull origin
     msg "The local files are updated."
   else
-    git clone ${_gitroot} ${_gitname}
+    git clone ${__gitroot} ${_gitname}
     cd ${_gitname}
   fi
   git checkout ${_gitbranch}
