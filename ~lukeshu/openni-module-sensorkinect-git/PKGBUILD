@@ -1,24 +1,23 @@
 # Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
 # Contributor: pallegro from the AUR
 
-pkgname=openni-module-sensorkinect
-pkgver=20111121
+pkgname=openni-module-sensorkinect-git
+pkgver=20111211
 pkgrel=2
 pkgdesc="OpenNI SensorKinect harware modules for the Xbox Kinect device"
-arch=('i686')
+arch=('i686' 'x86_64')
 url="https://github.com/avin2/SensorKinect"
 license=('GPL')
-depends=('openni-unstable')
+depends=('openni-unstable' 'kinect-udev')
 makedepends=('git')
-provides=($_pkgname)
-conflicts=('openni-primesensor')
+provides=('openni-module-sensorkinect')
+conflicts=('openni-module-sensorkinect' 'openni-module-primesensor')
 install="sensorkinect.install"
 source=()
 md5sums=()
 
 _gitroot="https://github.com/avin2/SensorKinect.git"
 _gitname="sensorkinect"
-#_gitbranch="unstable"
 _gitbranch="master"
 
 _os='Linux'
@@ -47,7 +46,7 @@ build() {
   cd ..
 
   msg "GIT checkout done or server timeout"
-  msg "Starting make..."
+  msg "Starting build..."
 
   rm -rf "$srcdir/$_gitname-build"
   git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
@@ -55,24 +54,24 @@ build() {
 
   # BUILD
   cd Platform/${_platform}/Build
-  make NI_CONF_DIR=/etc || return 1
+  make
+  make redist
 }
 
 package() {
-  install -d -m755 ${pkgdir}/usr/{lib,bin}
+  cd $srcdir/$_gitname-build
+  cd Platform/${_platform}/Redist
 
-  cd $srcdir/$_gitname-build/Platform/${_platform}/Bin/Release
-  install XnSensorServer ${pkgdir}/usr/bin
-  install libXnCore.so libXnDDK.so libXnDeviceFile.so libXnDeviceSensorV2KM.so libXnFormats.so ${pkgdir}/usr/lib
-  chmod +s ${pkgdir}/usr/bin/XnSensorServer
+  # This is all cloned from ./install.sh, which can't be used for a number
+  # of reasons.
+  install -d $pkgdir/usr/{lib,bin}
+  install -m755 Lib/* $pkgdir/usr/lib
+  install -m755 Bin/* $pkgdir/usr/bin
 
-  cd $srcdir/$_gitname-build/Platform/${_platform}/Install
-  install -d -m755 ${pkgdir}/etc/udev/rules.d
-  install 55-primesense-usb.rules ${pkgdir}/etc/udev/rules.d
+  install -d $pkgdir/etc/primesense
+  install -m644 Config/GlobalDefaultsKinect.ini $pkgdir/etc/primesense
 
-  cd $srcdir/$_gitname-build/Data
-  install -d -m755 ${pkgdir}/etc/primesense
-  install GlobalDefaultsKinect.ini ${pkgdir}/etc/primesense
+  chmod +s $pkgdir/usr/bin/XnSensorServer
 
-  install -d -m777 ${pkgdir}/var/log/primesense/XnSensorServer 
+  install -m777 -d $pkgdir/var/log/primesense/XnSensorServer
 }
