@@ -1,18 +1,19 @@
-# Contributor: Sven Schneider <archlinux.sandmann@googlemail.com>
 # Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+# Contributor: Sven Schneider <archlinux.sandmann@googlemail.com>
 
-_pkgname=libfreenect
-pkgname=${_pkgname}-git
-pkgver=20111115
-pkgrel=3
+# I am not giving libfreenect nearly the attention it deserves.
+# There are a lot of options for it that I'm ignoring.
+# Right now I'm focussing more on sensorkinect.
+# Patches welcome!
+
+pkgname=("libfreenect-git" 'kinect-udev-git')
+pkgver=20111211
+pkgrel=1
 pkgdesc="OpenKinect drivers and libraries for the Xbox Kinect device"
 arch=('i686' 'x86_64')
 url="http://openkinect.org"
 license=('GPL')
-depends=('libusb' 'freeglut' 'libxmu')
 makedepends=('cmake' 'git' 'python2')
-provides=($_pkgname)
-conflicts=($_pkgname)
 source=()
 md5sums=()
 
@@ -50,28 +51,36 @@ build() {
   cd build
   cmake \
       -DCMAKE_INSTALL_PREFIX=/usr \
+      -DBUILD_REDIST_PACKAGE=ON \
       -DLIB_SUFFIX="" \
-      -DBUILD_AUDIO=ON \
+      -DBUILD_AUDIO=OFF \
       -DBUILD_PYTHON=OFF \
       -DPYTHON_EXECUTABLE="`which python2`" \
       ..
   make
 }
 
-package() {
+package_libfreenect-git() {
+  depends=('libusb' 'freeglut' 'libxmu' 'kinect-udev')
+  provides=(libfreenect)
+  conflicts=(libfreenect)
+
   # Make install
   cd "${srcdir}/${_gitname}-build/build"
   make DESTDIR="${pkgdir}" install
 
-  # Move audio firmware file to proper location
-  mkdir -p "${pkgdir}/usr/share/libfreenect"
-  mv "${pkgdir}/usr/share/audios.bin" "${pkgdir}/usr/share/libfreenect/audios.bin" 
+  # Patch include files
+  sed 's/<libfreenect.h>/<libfreenect\/libfreenect.h>/g' -i "${pkgdir}/usr/include/libfreenect/libfreenect.hpp"
+}
+
+package_kinect-udev-git() {
+  pkgdesc="Udev rules for the Xbox Kinect device"
+  depends=('udev')
+  provides=(kinect-udev)
+  conflicts=(kinect-udev)
 
   # Install udev rules
   cd "${srcdir}/${_gitname}-build/"
   install -d "${pkgdir}/etc/udev/rules.d"
   install -m644 platform/linux/udev/51-kinect.rules "${pkgdir}/etc/udev/rules.d"
-  
-  # Patch include files
-  sed 's/<libfreenect.h>/<libfreenect\/libfreenect.h>/g' -i "${pkgdir}/usr/include/libfreenect/libfreenect.hpp"
 }
