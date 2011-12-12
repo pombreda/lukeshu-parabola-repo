@@ -1,9 +1,11 @@
-#Mantainer M0Rf30 
-#Contributor marlock
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+# Maintainer: M0Rf30 (AUR)
+# Contributor: marlock
+
 pkgname=android-udev
-pkgver=0.6
-pkgrel=3
-pkgdesc='Udev rules to connect Android devices to your linux box'
+pkgver=0.7
+pkgrel=3.1
+pkgdesc='Udev rules to for Android devices.'
 arch=('any')
 url="http://developer.android.com/guide/developing/device.html"
 license=('unknown')
@@ -12,12 +14,9 @@ depends=('udev' 'libmtp')
 conflicts=('udev-android-rules')
 install='android-udev.install'
 
-
-build() {
-   
-  mkdir -p $pkgdir/etc/udev/rules.d/
-  cp $srcdir/51-android.rules $pkgdir/etc/udev/rules.d/51-android.rules
-  chmod a+r $pkgdir/etc/udev/rules.d/51-android.rules
-  
+package() {
+  install -d $pkgdir/etc/udev/rules.d
+  install -m644 $srcdir/51-android.rules $pkgdir/etc/udev/rules.d/51-android.rules
 }
-md5sums=('f3522d98be78faa7ca9ce2d71963f96c')
+
+md5sums=('bfcd8d0e4c5bdeed0973e102a656e1eb')
