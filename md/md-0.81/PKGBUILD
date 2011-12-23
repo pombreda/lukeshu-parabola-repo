@@ -1,0 +1,59 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+pkgname=("md" "emacs-mdmua")
+pkgver=0.81
+pkgrel=2
+arch=('any')
+url="https://github.com/nicferrier/$_pkgname"
+license=('GPL3')
+options=(!emptydirs)
+
+_gitname=$pkgname
+__gitroot="https://github.com/nicferrier/${_gitname}.git"
+__gitbranch='1d69744257' # This is the commit that is 0.81
+
+build() {
+  cd "${srcdir}"
+  msg "Connecting to GIT server...."
+
+  if [ -d ${_gitname} ] ; then
+    cd ${_gitname}
+    git checkout master
+    git pull origin
+    msg "The local files are updated."
+  else
+    git clone ${__gitroot} ${_gitname}
+    cd ${_gitname}
+  fi
+  git checkout ${__gitbranch}
+  cd ..
+
+  msg "GIT checkout done or server timeout"
+  msg "Starting make..."
+
+  rm -rf "$srcdir/$_gitname-build"
+  git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
+  cd "$srcdir/$_gitname-build"
+  
+  # fix typo
+  sed -i 's/pyprofyfs/pyproxyfs/' "${srcdir}/${_gitname}/setup.py"
+}
+
+package_md() {
+  pkgdesc="A maildir client and library."
+  depends=('python' 'python-pyproxyfs')
+
+  cd "${srcdir}/${_gitname}"
+  python setup.py install --root="$pkgdir/" --optimize=1
+}
+
+package_emacs-mdmua() {
+  pkgdesc="An Emacs mail user agent (MUA) build around md."
+  pkgver='0.72'
+  depends=("md=0.81" 'emacs>=24')
+
+  cd "${srcdir}/${_gitname}"
+  cd useragents/emacs
+  install -d ${pkgdir}/usr/share/emacs/24/site-lisp
+  install -m 644 *.el ${pkgdir}/usr/share/emacs/24/site-lisp
+}

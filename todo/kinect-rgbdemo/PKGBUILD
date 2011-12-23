@@ -1,0 +1,18 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+pkgname=kinect-rgbdemo
+pkgver=0.6.1
+pkgrel=1
+pkgdesc="Demo software to visualize, calibrate and process Kinect cameras output."
+license=('LGPL')
+arch=('i686' 'x86_64')
+depends=('boost' 'boost-libs' 'libusb' 'qt' 'gtk2' 'cmake' 'glew' 'gsl' 'freeglut' 'libxmu')
+source=("http://downloads.sourceforge.net/project/roboticslab/RGBDemo-$pkgver-Source.tar.gz")
+
+build() {
+  cd $srcdir/RGBDemo-$pkgver-Source
+  ./linux_configure.sh
+  ./linux_build.sh
+}
+
+md5sums=('0954c58abb183431c43f0019dd2e3f3a')

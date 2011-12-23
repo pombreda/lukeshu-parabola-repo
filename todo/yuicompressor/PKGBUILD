@@ -1,0 +1,41 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+pkgname=yuicompressor
+pkgver=2.4.7
+pkgrel=1
+pkgdesc=""
+arch=('any')
+url=""
+license=('BSD')
+groups=()
+depends=('rhino' 'jargs')
+makedepends=('ant')
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("http://yui.zenfs.com/releases/$pkgname/$pkgname-$pkgver.zip")
+noextract=()
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  make
+}
+
+check() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make -k check
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+}
+
+md5sums=('885657c68ed617737e730b4c2ce52dda')

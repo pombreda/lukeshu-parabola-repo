@@ -15,7 +15,4 @@ pkg/
 namcap.log
 
 # I don't want to track these repos
-/dosemu
 /nonfree
-/md
-/aur

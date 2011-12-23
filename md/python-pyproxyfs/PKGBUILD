@@ -1,0 +1,27 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+_pkgname=pyproxyfs
+pkgname=python-$_pkgname
+pkgver=0.8
+pkgrel=1
+pkgdesc="A proxy filesystem interface with a native filesystem implementation and a very simple test in-memory filesystem."
+arch=('any')
+url="https://github.com/nicferrier/$_pkgname"
+license=('GPL3')
+groups=()
+depends=('python')
+makedepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=(!emptydirs)
+install=
+source=("http://pypi.python.org/packages/source/P/PyProxyFS/PyProxyFS-0.8.tar.gz")
+
+package() {
+  cd "${srcdir}/PyProxyFS-$pkgver"
+  python setup.py install --root="$pkgdir/" --optimize=1
+}
+
+md5sums=('34f769e669877a9fdcfe5f8f93912b88')

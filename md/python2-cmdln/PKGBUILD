@@ -1,0 +1,27 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+_pkgname=cmdln
+pkgname=python2-$_pkgname
+pkgver=1.1.2
+pkgrel=1
+pkgdesc=""
+arch=('any')
+url="http://code.google.com/p/$_pkgname"
+license=('MIT')
+groups=()
+depends=('python2')
+makedepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=(!emptydirs)
+install=
+source=("https://${_pkgname}.googlecode.com/files/${_pkgname}-${pkgver}.zip")
+
+package() {
+  cd "$srcdir/$_pkgname-$pkgver"
+  python2 setup.py install --root="$pkgdir/" --optimize=1
+}
+
+md5sums=('d40a36d0c7b2a23c65a6ab1f213ddc0a')

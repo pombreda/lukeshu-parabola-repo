@@ -1,0 +1,27 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+_pkgname=pyproxyfs
+pkgname=python2-$_pkgname
+pkgver=0.7
+pkgrel=1
+pkgdesc="A filesystem class that you can use for doing much of your file handling, but that can easily be mocked for specific testing purposes."
+arch=('any')
+url="https://github.com/nicferrier/$_pkgname"
+license=('GPL3')
+groups=()
+depends=('python2')
+makedepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=(!emptydirs)
+install=
+source=("${_pkgname}-${pkgver}.tar.gz::https://github.com/nicferrier/${_pkgname}/tarball/release_${pkgver//./_}")
+
+package() {
+  cd "${srcdir}/nicferrier-${_pkgname}-"*
+  python2 setup.py install --root="$pkgdir/" --optimize=1
+}
+
+md5sums=('bf77fba1dad2f9e314efb7ffca4bacdf')

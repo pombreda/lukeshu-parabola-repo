@@ -1,0 +1,55 @@
+# Maintainer: Luke Shumaker <lukeshu@sbcglobal.net>
+
+_pkgname=md-git # the name on github
+pkgname=("$_pkgname" "emacs-$_pkgname")
+pkgver=20111204
+pkgrel=1
+arch=('any')
+url="https://github.com/nicferrier/$_pkgname"
+license=('GPL3')
+options=(!emptydirs)
+
+_gitname=md
+_gitroot="https://github.com/nicferrier/${_gitname}.git"
+_gitbranch='master'
+
+build() {
+  cd "${srcdir}"
+  msg "Connecting to GIT server...."
+
+  if [ -d ${_gitname} ] ; then
+    cd ${_gitname}
+    git checkout master
+    git pull origin
+    msg "The local files are updated."
+  else
+    git clone ${_gitroot} ${_gitname}
+    cd ${_gitname}
+  fi
+  git checkout ${_gitbranch}
+  cd ..
+
+  msg "GIT checkout done or server timeout"
+}
+
+package_md-git() {
+  pkgdesc="A maildir client and library."
+  depends=('python' 'python-pyproxyfs')
+  provides=("md=$pkgver")
+  conflicts=("md")
+  
+  cd "${srcdir}/${_gitname}"
+  python setup.py install --root="$pkgdir/" --optimize=1
+}
+
+package_emacs-md-git() {
+  pkgdesc="An Emacs mail user agent (MUA) build around md."
+  depends=("md=$pkgver" 'emacs')
+  provides=("emacs-md=$pkgver")
+  conflicts=("emacs-md")
+
+  cd "${srcdir}/${_gitname}"
+  cd useragents/emacs
+  install -d ${pkgdir}/usr/share/emacs/site-lisp
+  install -m 644 *.el ${pkgdir}/usr/share/emacs/site-lisp
+}
