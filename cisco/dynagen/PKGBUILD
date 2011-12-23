@@ -3,29 +3,42 @@
 
 pkgname=dynagen
 pkgver=0.11.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Dynagen is a front-end for use with the Dynamips Cisco router emulator."
 arch=('i686' 'x86_64')
 url="http://www.dynagen.org"
-license=('GPL')
-depends=('dynamips' 'python')
+license=('GPL2')
+depends=('dynamips' 'python2')
+backup=('etc/dynagen.ini')
 source=(http://downloads.sourceforge.net/dyna-gen/${pkgname}-${pkgver}.tar.gz)
-md5sums=('3f88b3449b17096dca84d007f0b91b3f')
+
+# TODO: Figure out PEMU, there's a binary in the distro. Remove pemubin.py
 
 build() {
-  cd $startdir/src/$pkgname-$pkgver
-  rm -R docs/ sample_labs/ COPYING README.txt
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  rm pemubin.py # is nonfree
 
-
-  mkdir -p $startdir/pkg/usr/share/dynagen
-  mv * $startdir/pkg/usr/share/dynagen
-  mkdir -p $startdir/pkg/usr/bin
-  cd $startdir/pkg/usr/bin
-  ln -s ../share/dynagen/dynagen
-  mkdir $startdir/pkg/etc
-  mv $startdir/pkg/usr/share/dynagen/dynagen.ini $startdir/pkg/etc
-  chmod 644 $startdir/pkg/usr/share/dynagen/*
-  chmod 755 $startdir/pkg/usr/share/dynagen/dynagen
-  chmod 755 $startdir/pkg/usr/share/dynagen/pemu-start.sh
-
+  chmod 644 dynagen
+  mv dynagen dynagen.py
+  sed -i '1s@^#!.*@#!/usr/bin/env python2@' *.py
+  echo '#!/bin/sh' > dynagen.sh
+  echo 'export PYTHONPATH=/usr/share/dynagen' >> dynagen.sh
+  echo 'python2 /usr/share/dynagen/dynagen.py' >> dynagen.sh
 }
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  install -d "${pkgdir}/usr/share/doc/"
+  cp -r docs "${pkgdir}/usr/share/doc/${pkgname}"
+  install -m644 README.txt "${pkgdir}/usr/share/doc/"
+  
+  install -d "${pkgdir}/usr/share/dynagen"
+  install -m644 *.py configspec "${pkgdir}/usr/share/dynagen"
+  install -m755 pemu-start.sh "${pkgdir}/usr/share/dynagen"
+  
+  install -D -m755 dynagen.sh "${pkgdir}/usr/bin/dynagen"
+  install -D -m644 dynagen.ini "${pkgdir}/etc/dynagen.ini"
+}
+
+md5sums=('3f88b3449b17096dca84d007f0b91b3f')
